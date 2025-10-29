@@ -275,11 +275,11 @@ def download_google_doc(url):
         logger.info('download_google_doc function has been successful')
         return policy_text, policy_html, title
 # This funciton download the pdf con websites(expcep Google Drive, Onedrive, dropbox)
-def download_pdf(url):
+def download_pdf(url,pdf_name):
     try:
         logger.debug('download_pdf function has been started')
-        n_ram = random.randrange(10, 100, 4)
-        pdf_name = 'privacyPolicy' + str(n_ram)
+        #n_ram = random.randrange(10, 100, 4)
+        #pdf_name = 'privacyPolicy' + str(n_ram)
         response = requests.get(url, stream=True, verify=False)
         file = open(result_dir + pdf_name + '.pdf', 'wb')
         for chunk in response.iter_content(chunk_size=1024):
@@ -290,7 +290,7 @@ def download_pdf(url):
         logger.error("download_pdf download failed",
                      extra={'exception_message': str(e), 'reason': reason})
     else:
-        logger.info('ownload_pdf function has been started successful')
+        logger.info('download_pdf function has been started successful')
         return pdf_name
     finally:
         file.close()
@@ -505,9 +505,13 @@ def Service3():
     path = 'listaURL.txt'
     elements = apk_list(path)
     cont = 0
-    for url in elements:
+    for element in elements:
         cont = cont + 1
         print(cont)
+        textual = element.split("\\")
+        _title = textual[0]
+        url = textual[1]
+        print(_title)
         print(url)
         logger.info('Running the microservice 3')
         try:
@@ -523,15 +527,15 @@ def Service3():
                     if csf_drive or csf_html:
                         print('Downloading web document')
                         pText, pHtml, title = download_general_text(url)
-                        store_text(pText, pHtml, title)
+                        store_text(pText, pHtml, _title)
                     if csf_pdf:
                         print('Downloading pdf document')
-                        pdf_name = download_pdf(url)
-                        pdf2text(pdf_name)
+                        pdf_name = download_pdf(url,_title)
+                        pdf2text(_title)
                     if csf_docs:
                         print('Downloading google docs document')
                         pText, pHtml, title = download_google_doc(url)
-                        store_text(pText, pHtml, title)
+                        store_text(pText, pHtml, _title)
                     if csf_dropbox:
                         print('Downloading documents from Dropbox')
                         dropbox_general(url)
@@ -540,7 +544,7 @@ def Service3():
                     if csf_onedrive:
                         print('Downloading docx document from OneDrive')
                         pText, pHtml, title = download_onedrive_docx(url)
-                        store_text(pText, pHtml, title)
+                        store_text(pText, pHtml, _title)
             else:
                     logger.info('Problems with the URL response')
                     print('Problems with the url state')
